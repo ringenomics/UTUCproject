@@ -1,3 +1,5 @@
+#Run in pipeline env
+
 cd /Volumes/UTUCproject/Pipeline_outputs
 for sample in TL-22-JICYR8PP_N_DSQ1 TL-22-86QRKCES_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-P4ACNIE3_T_DSQ1
 do
@@ -17,12 +19,31 @@ do
         samtools index ${sample}.aligned.bam
 
         picard MarkDuplicates --INPUT ${sample}.aligned.bam --OUTPUT ${sample}.dedup.aligned.bam --METRICS_FILE ${sample}.metrics.txt --ASSUME_SORTED True --REMOVE_DUPLICATES True
-        samtools sort -@ 10 -m 3G -T tzmp/aln.sorted -o ${sample}.dedup.aligned.bam ${sample}.dedup.aligned.bam
+        samtools sort -@ 10 -m 3G -T tmp/aln.sorted -o ${sample}.dedup.aligned.bam ${sample}.dedup.aligned.bam
         samtools index ${sample}.dedup.aligned.bam
 
         samtools view -c -F 0x4 ${sample}.dedup.aligned.bam > ${sample}.dedup.numAligned.txt
         cd ..
 
-        #put SVIM stuff here
     fi
 done
+
+gatk CreateSequenceDictionary -R /Volumes/UTUCproject/Pipeline_outputs/hg19.fa
+
+for sample in TL-22-86QRKCES_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-P4ACNIE3_T_DSQ1
+do
+    cd ${sample}
+    gatk Mutect2 -R /Volumes/UTUCproject/Pipeline_outputs/hg19.fa -I ${sample}.aligned.bam -I /Volumes/UTUCproject/Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.aligned.bam -normal TL-22-JICYR8PP_N_DSQ1 -O ${sample}.GATK.somatic.vcf
+    gatk Mutect2 -R /Volumes/UTUCproject/Pipeline_outputs/hg19.fa -I ${sample}.dedup.aligned.bam -I /Volumes/UTUCproject/Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -normal TL-22-JICYR8PP_N_DSQ1 -O ${sample}.GATK.somatic.dedup.vcf
+    cd ..
+done
+
+cd TL-22-JICYR8PP_N_DSQ1
+gatk Mutect2 -R /Volumes/UTUCproject/Pipeline_outputs/hg19.fa -I /Volumes/UTUCproject/Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.aligned.bam -O GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.vcf
+gatk Mutect2 -R /Volumes/UTUCproject/Pipeline_outputs/hg19.fa -I /Volumes/UTUCproject/Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -O GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.dedup.vcf
+cd ..
+
+#run in main env
+
+#run in feature env
+configManta.py --normalBam=/Volumes/UTUCproject/Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.aligned.bam --tumorBam=/Volumes/UTUCproject/Pipeline_outputs/TL-22-86QRKCES_T_DSQ1/TL-22-86QRKCES_T_DSQ1.aligned.bam --referenceFasta=/Volumes/UTUCproject/Pipeline_outputs/hg19.fa
