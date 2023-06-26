@@ -51,15 +51,7 @@ cd ..
 
 
 #testing freebayes to run through COSMIC
-for sample in TL-22-86QRKCES_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-P4ACNIE3_T_DSQ1
-do
-    cd ${sample}
-    freebayes -F 0.01 -C 2 --pooled-continuous --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.aligned.bam /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.aligned.bam > freebayes_${sample}_variants.vcf
-    freebayes -F 0.01 -C 2 --pooled-continuous --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.dedup.aligned.bam /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam > freebayes_${sample}_variants.dedup.vcf
-    cd ..
-done
-
-for sample in TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
+for sample in TL-22-JICYR8PP_N_DSQ1 TL-22-86QRKCES_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-P4ACNIE3_T_DSQ1 TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
 do
     cd ${sample}
     freebayes -F 0.01 -C 2 --pooled-continuous --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.aligned.bam > freebayes_${sample}_variants.vcf
@@ -68,6 +60,7 @@ do
 done
 
 
+#trying strelka
 
 #run in main env
 
