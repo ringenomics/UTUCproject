@@ -30,33 +30,51 @@ done
 
 for sample in TL-22-86QRKCES_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-P4ACNIE3_T_DSQ1
 do
-    cd ${sample}
-    gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I ${sample}.dedup.aligned.bam -I /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -normal TL-22-JICYR8PP_N_DSQ1 -O ${sample}.GATK.somatic.dedup.vcf
-    grep -w '^#\|chr[1-9]\|chr[1-2][0-9]\|chr[X]' ${sample}.GATK.somatic.dedup.vcf > CLEAN_${sample}.GATK.somatic.dedup.vcf
-    cd ..
+    if [ ! -e /Volumes/UTUCproject/DNA_Pipeline_outputs/${sample}/CLEAN_${sample}.GATK.somatic.dedup.vcf ]
+    then
+        cd ${sample}
+        gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I ${sample}.dedup.aligned.bam -I /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -normal TL-22-JICYR8PP_N_DSQ1 -O ${sample}.GATK.somatic.dedup.vcf --native-pair-hmm-threads 8
+        grep -w '^#\|chr[1-9]\|chr[1-2][0-9]\|chr[X]' ${sample}.GATK.somatic.dedup.vcf > CLEAN_${sample}.GATK.somatic.dedup.vcf
+        cd ..
+    fi
 done
 
 for sample in TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
 do
-    cd ${sample}
-    gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I ${sample}.dedup.aligned.bam -O ${sample}.GATK.somatic.dedup.vcf
-    grep -w '^#\|chr[1-9]\|chr[1-2][0-9]\|chr[X]' ${sample}.GATK.somatic.dedup.vcf > CLEAN_${sample}.GATK.somatic.dedup.vcf
-    cd ..
+    if [ ! -e /Volumes/UTUCproject/DNA_Pipeline_outputs/${sample}/CLEAN_${sample}.GATK.somatic.dedup.vcf ]
+    then
+        cd ${sample}
+        gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I ${sample}.dedup.aligned.bam -O ${sample}.GATK.somatic.dedup.vcf
+        grep -w '^#\|chr[1-9]\|chr[1-2][0-9]\|chr[X]' ${sample}.GATK.somatic.dedup.vcf > CLEAN_${sample}.GATK.somatic.dedup.vcf
+        cd ..
+    fi
 done
 
-cd TL-22-JICYR8PP_N_DSQ1
-gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.aligned.bam -O GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.vcf
-gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -O GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.dedup.vcf
-cd ..
+if [ ! -e /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.dedup.vcf ]
+then
+    cd TL-22-JICYR8PP_N_DSQ1
+    gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.aligned.bam -O GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.vcf
+    gatk Mutect2 -R /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa -I /Volumes/UTUCproject/DNA_Pipeline_outputs/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -O GERMLINE_TL-22-JICYR8PP_N.GATK.somatic.dedup.vcf
+    cd ..
+di
 
 
 #testing freebayes to run through COSMIC
+cd /Volumes/UTUCproject/DNA_Pipeline_outputs
 for sample in TL-22-JICYR8PP_N_DSQ1 TL-22-86QRKCES_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-P4ACNIE3_T_DSQ1 TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
 do
-    cd ${sample}
-    freebayes -F 0.01 -C 2 --pooled-continuous --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.aligned.bam > freebayes_${sample}_variants.vcf
-    freebayes -F 0.01 -C 2 --pooled-continuous --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.dedup.aligned.bam > freebayes_${sample}_variants.dedup.vcf
-    cd ..
+    if [ ! -e /Volumes/UTUCproject/DNA_Pipeline_outputs/${sample}/freebayes_${sample}_variants.dedup.vcf ]
+    then
+        cd ${sample}
+        freebayes --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.dedup.aligned.bam > freebayes_${sample}_variants.dedup.vcf
+        cd ..
+    fi
+    if [ ! -e /Volumes/UTUCproject/DNA_Pipeline_outputs/${sample}/freebayes_${sample}_variants.vcf ]
+    then
+        cd ${sample}
+        freebayes --fasta-reference /Volumes/UTUCproject/DNA_Pipeline_outputs/hg19.fa ${sample}.aligned.bam > freebayes_${sample}_variants.vcf
+        cd ..
+    fi
 done
 
 
