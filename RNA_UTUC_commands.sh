@@ -70,25 +70,47 @@ conda activate rmats_env
 ulimit -n 400000
 
 
-for sample in $(ls -d */ | cut -f1 -d'/')
+for sample in TL-22-354IF4A9_T_RSQ1 TL-22-86QRKCES_T_RSQ1 TL-22-BK3DDUYG_T_RSQ1 TL-22-DHERTUS6_T_RSQ1 TL-22-JICYR8PP_T_RSQ1 TL-22-KXMGA3WE_T_RSQ1 TL-22-P4ACNIE3_T_RSQ1 TL-22-PKA8ZUD2_T_RSQ1 TL-22-RVHYDX4F_T_RSQ1 TL-22-SA4HH23W_T_RSQ1 TL-22-TMY85WNT_T_RSQ1
 do
 	if [ ! -d /temp_data/RNA_data/${sample}/RMATS/summary.txt ]
 	then
 		cd ${sample}	
-		mkdir tmp
 		mkdir RMATS
+		mkdir RMATS/tmp
 		#running it by itself first using --statoff but then remove that flag in order to compare within each patient 
-		echo "/temp_data/RNA_data/${sample}/${sample}_1.fastq:/temp_data/RNA_data/${sample}/${sample}_3.fastq" >> s1.txt
-		python /home/rin/anaconda3/envs/rmats_env/rMATS/rmats.py --s1 s1.txt --gtf /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --bi /home/rin/Desktop/Reference_files/hg19_files_goldenpath -t paired --readLength 50 --nthread 28 --od /temp_data/RNA_data/${sample}/RMATS --tmp /temp_data/RNA_data/${sample}/tmp --statoff
+		echo "/temp_data/RNA_data/${sample}/${sample}_1.fastq:/temp_data/RNA_data/${sample}/${sample}_3.fastq" > s1.txt
+		seqLength=$(head -n 2 /temp_data/RNA_data/${sample}/${sample}_1.fastq | tail -n 1 | wc -c)
+		python /home/rin/anaconda3/envs/rmats_env/rMATS/rmats.py --s1 s1.txt --gtf /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --bi /home/rin/Desktop/Reference_files/hg19_files_goldenpath -t paired --readLength 150 --variable-read-length --nthread 28 --od /temp_data/RNA_data/${sample}/RMATS --tmp /temp_data/RNA_data/${sample}/RMATS/tmp --statoff
 		cd ..
 	fi
 done
 
 
-
-
-
-
+#RMATS comparing each sample to each other
+cd /temp_data/RNA_data
+conda activate rmats_env
+ulimit -n 400000
+for sample_1 in TL-22-354IF4A9_T_RSQ1 TL-22-86QRKCES_T_RSQ1 TL-22-BK3DDUYG_T_RSQ1 TL-22-DHERTUS6_T_RSQ1 TL-22-JICYR8PP_T_RSQ1 TL-22-KXMGA3WE_T_RSQ1 TL-22-P4ACNIE3_T_RSQ1 TL-22-PKA8ZUD2_T_RSQ1 TL-22-RVHYDX4F_T_RSQ1 TL-22-SA4HH23W_T_RSQ1 TL-22-TMY85WNT_T_RSQ1
+do
+	for sample_2 in TL-22-354IF4A9_T_RSQ1 TL-22-86QRKCES_T_RSQ1 TL-22-BK3DDUYG_T_RSQ1 TL-22-DHERTUS6_T_RSQ1 TL-22-JICYR8PP_T_RSQ1 TL-22-KXMGA3WE_T_RSQ1 TL-22-P4ACNIE3_T_RSQ1 TL-22-PKA8ZUD2_T_RSQ1 TL-22-RVHYDX4F_T_RSQ1 TL-22-SA4HH23W_T_RSQ1 TL-22-TMY85WNT_T_RSQ1
+	do
+	if [ ${sample_1} != ${sample_2} ]
+	then
+		if [ ! -d /temp_data/RNA_data/comparison_of_${sample_1}_and_${sample_2} ]
+		then
+			echo "sample1: ${sample_1}"
+			echo "sample2: ${sample_2}"
+			echo "/temp_data/RNA_data/${sample_1}/${sample_1}_1.fastq:/temp_data/RNA_data/${sample_1}/${sample_1}_3.fastq" > ${sample_1}_s1.txt
+			echo "/temp_data/RNA_data/${sample_2}/${sample_2}_1.fastq:/temp_data/RNA_data/${sample_2}/${sample_2}_3.fastq" > ${sample_2}_s2.txt
+			mkdir comparison_of_${sample_1}_and_${sample_2}
+			mkdir comparison_of_${sample_1}_and_${sample_2}/tmp
+			seqLength=$(head -n 2 /temp_data/RNA_data/${sample_1}/${sample_1}_1.fastq | tail -n 1 | wc -c)
+			python /home/rin/anaconda3/envs/rmats_env/rMATS/rmats.py --s1 ${sample_1}_s1.txt --s2 ${sample_2}_s2.txt --gtf /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --bi /home/rin/Desktop/Reference_files/hg19_files_goldenpath -t paired --readLength 150 --variable-read-length --nthread 28 --od /temp_data/RNA_data/comparison_of_${sample_1}_and_${sample_2} --tmp /temp_data/RNA_data/comparison_of_${sample_1}_and_${sample_2}/tmp 
+		fi
+	
+	fi
+	done
+done
 
 
 
