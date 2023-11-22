@@ -2,7 +2,11 @@
 Code page for the manuscript
 
 Tools used for the DNA pipeline:
-
+<br /> Genefuse
+<br /> trim_galore
+<br /> bwa
+<br /> samtools
+<br /> picard
 
 Tools used for the RNA pipeline:
 <br /> STAR
