@@ -28,4 +28,49 @@ do
     fi
 done
 
+for reference genome for circos
+faToTwoBit myAssembly.fa myAssembly.2bit
+blat myAssembly.2bit -oneOff=0 -noHead myQueryContigSeqs.fa myHits.psl
+The output file myHits.psl is in PSL format. You can convert to BED with psl2bed and cut -f1-3 to grab the first three columns
+
+#SVVIZ
+cd /temp_data/DNA_data
+conda activate svviz_env
+for sample in $(ls -d */ | cut -f1 -d'/')
+do
+    if [ ! -e /temp_data/DNA_data/${sample}/hi ]
+    then
+        cd ${sample}
+        	svviz --type inv --processes 30 --annotations /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.bed -b ${sample}.dedup.aligned.bam /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa chr4 1740000 1810000
+        cd ..
+    fi
+done
+
+
+
+
+#running gatk now only on one patient with normal samples
+conda activate gatk_env
+cd /temp_data/DNA_data
+for tumor_name in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1
+do
+	if [ ! -e /temp_data/DNA_data/${tumor_name}/final_${tumor_name}.GATK.somatic_filtered.dedup.bed ]
+    	then
+    		cd ${tumor_name}
+		gatk Mutect2 -R /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa -I ${tumor_name}.dedup.aligned.bam -I /temp_data/DNA_data/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -normal TL-22-JICYR8PP_N_DSQ1 -O /temp_data/DNA_data/${tumor_name}/${tumor_name}.GATK.somatic_unfiltered.dedup.vcf --native-pair-hmm-threads 30
+		gatk FilterMutectCalls -R /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa -V /temp_data/DNA_data/${tumor_name}/${tumor_name}.GATK.somatic_unfiltered.dedup.vcf -O /temp_data/DNA_data/${tumor_name}/${tumor_name}.GATK.somatic_filtered.dedup.vcf
+		bcftools view -f 'PASS,.' ${tumor_name}.GATK.somatic_filtered.dedup.vcf > final_${tumor_name}.GATK.somatic_filtered.dedup.vcf
+		
+		bcftools query -f '%CHROM\t%POS0\t%POS\n' final_${tumor_name}.GATK.somatic_filtered.dedup.vcf > final_${tumor_name}.GATK.somatic_filtered.dedup.bed
+		awk -v OFS="\t" '!/##/ {$10=$11=""}1' final_${tumor_name}.GATK.somatic_filtered.dedup.vcf |sed 's/^\s\+//g' > shortened_${tumor_name}.GATK.somatic_filtered.dedup.vcf
+		
+		cd ..
+		
+		cat ${tumor_name}/final_${tumor_name}.GATK.somatic_filtered.dedup.bed >> presorted_ALL_SAMPLES.bed
+
+	fi
+done
+
+sort -k 1,1 -k2,2n presorted_ALL_SAMPLES.bed > sorted_ALL_SAMPLES.bed
+bedtools merge -i sorted_ALL_SAMPLES.bed > mergedandsorted_ALL_SAMPLES.bed
 

@@ -1,0 +1,18 @@
+#run on R from within starfus_env
+
+
+library("chimeraviz")
+library("stringr")
+for (sample_1 in c("TL-22-354IF4A9_T_RSQ1", "TL-22-86QRKCES_T_RSQ1", "TL-22-BK3DDUYG_T_RSQ1", "TL-22-DHERTUS6_T_RSQ1", "TL-22-JICYR8PP_T_RSQ1", "TL-22-KXMGA3WE_T_RSQ1", "TL-22-P4ACNIE3_T_RSQ1", "TL-22-PKA8ZUD2_T_RSQ1", "TL-22-RVHYDX4F_T_RSQ1", "TL-22-SA4HH23W_T_RSQ1", "TL-22-TMY85WNT_T_RSQ1")) {
+	fusions <- import_starfusion(str_c("/temp_data/RNA_data/",sample_1,"/STARFUS_",sample_1,"/star-fusion.fusion_predictions.abridged.tsv"), "hg19")
+	pngFilename <- tempfile(pattern = "circlePlot", fileext = ".png", tmpdir = str_c("/temp_data/RNA_data/",sample_1,"/"))
+	png(str_c("/temp_data/RNA_data/",sample_1,"/RNAcircleplot_",sample_1,".png"), width = 1000, height = 1000)
+	plot_circle(fusions)
+	dev.off()
+}
+
+
+
+
+    
+

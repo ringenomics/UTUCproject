@@ -114,25 +114,33 @@ done
 
 
 
-
-
-
-
-
-
 #SASHIMI
+conda activate pipeline_macvs
+cd /temp_data/RNA_data
+ulimit -n 400000
+
+for sample in TL-22-TMY85WNT_T_RSQ1 TL-22-KXMGA3WE_T_RSQ1 TL-22-BK3DDUYG_T_RSQ1
+do
+	echo "${sample}	${sample}/${sample}_RNAAligned.sortedByCoord.out.bam" >> sashimi_groups_file_FGFR3TACC3.txt
+done
+
+/home/rin/ggsashimi.py -b sashimi_groups_file_FGFR3TACC3.txt -c chr4:1741429-1808661 -o SASHIMI_FGFR3_TACC3 -g /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --height 4 --width 20 -F pdf --shrink
+/home/rin/ggsashimi.py -b sashimi_groups_file_FGFR3TACC3.txt -c chr4:1741429-1808661 -o SASHIMI_FGFR3_TACC3 -g /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --height 4 --width 20 -F jpeg --shrink
+
 
 conda activate pipeline_macvs
 cd /temp_data/RNA_data
 ulimit -n 400000
 
-echo "TL-22-JD5PK2C7_T_RSQ1	TL-22-JD5PK2C7_T_RSQ1/TL-22-JD5PK2C7_T_RSQ1_RNAAligned.sortedByCoord.out.bam" >> sashimi_groups_file.txt
-echo "TL-23-FZU8JWAH_T_RSQ1	TL-23-FZU8JWAH_T_RSQ1/TL-23-FZU8JWAH_T_RSQ1_RNAAligned.sortedByCoord.out.bam" >> sashimi_groups_file.txt
+for sample in TL-22-TMY85WNT_T_RSQ1 TL-22-KXMGA3WE_T_RSQ1 TL-22-BK3DDUYG_T_RSQ1
+do
+	python /home/rin/rmats2sashimiplot/src/rmats2sashimiplot/rmats2sashimiplot.py --b1 ${sample}/${sample}_RNAAligned.sortedByCoord.out.bam --b2 ${sample}/${sample}_RNAAligned.sortedByCoord.out.bam -c chr16:+:9000:25000:/home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --l1 SampleOne --l2 SampleTwo --exon_s 1 --intron_s 5 -o test_coordinate_output
+done
 
-/home/rin/ggsashimi.py -b sashimi_groups_file.txt -c chr13:32889607-32974509 -o SASHIMI_BRCA2whole -g /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --height 4 --width 20 -F pdf -C 2 -P palette.txt --shrink
-/home/rin/ggsashimi.py -b sashimi_groups_file.txt -c chr13:32889607-32974509 -o SASHIMI_BRCA2whole -g /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --height 4 --width 20 -F jpeg -C 2 -P palette.txt --shrink
 
-/home/rin/ggsashimi.py -b sashimi_groups_file.txt -c chr13:32919825-32935429 -o SASHIMI_BRCA2exons13_16 -g /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --height 4 --width 20 -F pdf -C 2 -P palette.txt --shrink
-/home/rin/ggsashimi.py -b sashimi_groups_file.txt -c chr13:32919825-32935429 -o SASHIMI_BRCA2exons13_16 -g /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.refGene.gtf --height 4 --width 20 -F jpeg -C 2 -P palette.txt --shrink
+
+
+
+
 
 
