@@ -23,3 +23,4 @@ Tools used for the RNA pipeline:
 <br /> Star-fusion
 <br /> https://github.com/Xinglab/rmats-turbo
 <br /> Sashimi
+<br /> Chimeraviz
