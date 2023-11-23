@@ -14,6 +14,7 @@ Tools used for the DNA pipeline:
 <br />Anaconda: Anaconda Software Distribution. (2020). Anaconda Documentation. Anaconda Inc. Retrieved from https://docs.anaconda.com/
 <br />Bedtools: Quinlan, A. R., & Hall, I. M. (2010). BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics (Oxford, England), 26(6), 841–842. https://doi.org/10.1093/bioinformatics/btq033
 <br />Bamtools: Derek W. Barnett, Erik K. Garrison, Aaron R. Quinlan, Michael P. Strömberg, and Gabor T. Marth. 2011. BamTools. Bioinformatics 27, 12 (June 2011), 1691–1692. https://doi.org/10.1093/bioinformatics/btr174
+<br /> Sigprofiler
 
 
 Tools used for the RNA pipeline:
