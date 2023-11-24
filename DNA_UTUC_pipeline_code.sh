@@ -74,3 +74,42 @@ done
 sort -k 1,1 -k2,2n presorted_ALL_SAMPLES.bed > sorted_ALL_SAMPLES.bed
 bedtools merge -i sorted_ALL_SAMPLES.bed > mergedandsorted_ALL_SAMPLES.bed
 
+#running pindel
+conda activate gatk_env
+cd /temp_data
+for tumor_name in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1
+do
+	if [ ! -e /temp_data/DNA_data/${tumor_name}/FILTERED_pindel_output_${tumor_name}.vcf ]
+    	then
+		cd ${tumor_name}
+		#making necessary pindel files
+		echo "/temp_data/DNA_data/${tumor_name}/${tumor_name}.dedup.aligned.bam	250	${tumor_name}" >> ${tumor_name}_pindelinput.txt
+		echo "/temp_data/DNA_data/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam	250	TL-22-JICYR8PP_N_DSQ1" >> ${tumor_name}_pindelinput.txt
+		pindel -f /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa -i ${tumor_name}_pindelinput.txt -o pindel_output_${tumor_name} -T 30 -w 1000 -c ALL
+		pindel2vcf -P pindel_output_${tumor_name} -r /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa -R UCSCgoldenpathhg19 -d 20180821  -w 1000
+		#filtering vcf files
+		gatk IndexFeatureFile -I pindel_output_${tumor_name}.vcf
+		grep "\(0\/1\|1\/1\|1\/0\|#\)" pindel_output_${tumor_name}.vcf > FILTERED_pindel_output_${tumor_name}.vcf
+		cd ..
+	fi
+done
+
+
+
+
+
+#FACETS CNV CALLS
+conda activate pipeline_macvs
+cd /temp_data/DNA_data
+for tumor_name in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1
+do
+	if [ ! -e /temp_data/DNA_data/${tumor_name}/FACETS_CNV/${tumor_name} ]
+    	then
+		cd ${tumor_name}
+		mkdir FACETS_CNV
+		cnv_facets.R -t ${tumor_name}.aligned.bam -n /temp_data/DNA_data/TL-22-JICYR8PP_N_DSQ1/TL-22-JICYR8PP_N_DSQ1.dedup.aligned.bam -vcf /home/rin/Desktop/Reference_files/hg19_files_goldenpath/correctly_labelled_00-common_all.vcf.gz -o FACETS_CNV/${tumor_name} --snp-nprocs 30
+		cd ..
+	fi
+done
+
+
