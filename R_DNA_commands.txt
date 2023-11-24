@@ -14,23 +14,5 @@ for (sample_1 in c("TL-22-354IF4A9_T_RSQ1", "TL-22-86QRKCES_T_RSQ1", "TL-22-BK3D
 
 
 
+    
 
-
-library("chimeraviz")
-library("stringr")
-fusions <- import_starfusion(str_c("/temp_data/RNA_data/TL-22-BK3DDUYG_T_RSQ1/STARFUS_TL-22-BK3DDUYG_T_RSQ1/star-fusion.fusion_predictions.abridged.tsv"), "hg19")
-get_fusion_by_gene_name(fusions, "TACC3")
-fusion <- get_fusion_by_id(fusions, 2)
-edbSqliteFile <- ensDbFromGtf("/home/rin/Desktop/Reference_files/hg19_files_goldenpath/Homo_sapiens.GRCh37.87.gtf", "Homo_sapiens", "hg19", "87")
-edb <- ensembldb::EnsDb(edbSqliteFile)
-fusion <- get_transcripts_ensembl_db(fusion, edb)
-
-plot_fusion(
- fusion = fusion,
- bamfile = "/temp_data/RNA_data/TL-22-BK3DDUYG_T_RSQ1/TL-22-BK3DDUYG_T_RSQ1_RNAAligned.sortedByCoord.out.bam",
- edb = edb,
- non_ucsc = TRUE)
- 
- plot_transcripts(
-  fusion = fusion,
-  edb = edb)
