@@ -28,11 +28,6 @@ do
     fi
 done
 
-for reference genome for circos
-faToTwoBit myAssembly.fa myAssembly.2bit
-blat myAssembly.2bit -oneOff=0 -noHead myQueryContigSeqs.fa myHits.psl
-The output file myHits.psl is in PSL format. You can convert to BED with psl2bed and cut -f1-3 to grab the first three columns
-
 #SVVIZ
 cd /temp_data/DNA_data
 conda activate svviz_env
@@ -46,8 +41,51 @@ do
     fi
 done
 
+#FREEBAYEs on everyone
+conda activate gatk_env
+cd /intelpool/UTUCproject/DNA_data
+
+for sample in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1 TL-22-354IF4A9_T_DSQ1 TL-22-RVHYDX4F_T_DSQ1 TL-22-SKGMA3U8_T_DSQ1 TL-22-KXMGA3WE_T_DSQ1 TL-22-BK3DDUYG_T_DSQ1 TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
+do
+    if [ ! -e /intelpool/UTUCproject/DNA_data/${sample}/filtered_freebayes_${sample}.bed ]
+    then
+        cd ${sample}
+        	freebayes -f /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa ${sample}.dedup.aligned.bam > freebayes_${sample}.vcf
+        	bcftools view -i 'QUAL>30 && FORMAT/DP>100' freebayes_${sample}.vcf > filtered_freebayes_${sample}.vcf
+        	bcftools query -f '%CHROM\t%POS0\t%POS\t%ALT\n' filtered_freebayes_${sample}.vcf > filtered_freebayes_${sample}.bed
+        cd ..
+        
+        cat ${sample}/filtered_freebayes_${sample}.bed >> freebayes_presorted_ALL_SAMPLES.bed
+    fi
+done
+
+#now compare each sample within each patient
+#pt1
+for sample in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1
+do
+	cat ${sample}/filtered_freebayes_${sample}.bed >> pt1_freebayes_presorted_ALL_SAMPLES.bed
+done
 
 
+#pt2
+for sample in TL-22-354IF4A9_T_DSQ1 TL-22-RVHYDX4F_T_DSQ1
+do
+	cat ${sample}/filtered_freebayes_${sample}.bed >> pt2_freebayes_presorted_ALL_SAMPLES.bed
+done
+
+
+#pt3
+for sample in TL-22-SKGMA3U8_T_DSQ1 TL-22-KXMGA3WE_T_DSQ1 TL-22-BK3DDUYG_T_DSQ1
+do
+	cat ${sample}/filtered_freebayes_${sample}.bed >> pt3_freebayes_presorted_ALL_SAMPLES.bed
+done
+
+
+#pt4
+for sample in TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
+do
+	cat ${sample}/filtered_freebayes_${sample}.bed >> pt4_freebayes_presorted_ALL_SAMPLES.bed
+done
 
 #running gatk now only on one patient with normal samples
 conda activate gatk_env
@@ -76,7 +114,7 @@ bedtools merge -i sorted_ALL_SAMPLES.bed > mergedandsorted_ALL_SAMPLES.bed
 
 #running pindel
 conda activate gatk_env
-cd /temp_data
+cd /temp_data/DNA_data
 for tumor_name in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1
 do
 	if [ ! -e /temp_data/DNA_data/${tumor_name}/FILTERED_pindel_output_${tumor_name}.vcf ]
@@ -111,5 +149,22 @@ do
 		cd ..
 	fi
 done
+
+
+#SOMALIER
+conda activate gatk_env
+cd /intelpool/UTUCproject/DNA_data
+
+for sample in TL-22-P4ACNIE3_T_DSQ1 TL-22-JICYR8PP_T_DSQ1 TL-22-DHERTUS6_T_DSQ1 TL-22-86QRKCES_T_DSQ1 TL-22-354IF4A9_T_DSQ1 TL-22-RVHYDX4F_T_DSQ1 TL-22-SKGMA3U8_T_DSQ1 TL-22-KXMGA3WE_T_DSQ1 TL-22-BK3DDUYG_T_DSQ1 TL-22-PKA8ZUD2_T_DSQ1 TL-22-SA4HH23W_T_DSQ1
+do
+    if [ ! -e /intelpool/UTUCproject/DNA_data/somalier_cohort/hi ]
+    then
+        cd ${sample}
+        	somalier extract -d /intelpool/UTUCproject/DNA_data/somalier_cohort/ --sites /home/rin/Desktop/Reference_files/hg19_files_goldenpath/somalier_sites.hg19.vcf -f /home/rin/Desktop/Reference_files/hg19_files_goldenpath/hg19.fa ${sample}.dedup.aligned.bam
+        cd ..
+    fi
+done
+
+somalier relate --infer /intelpool/UTUCproject/DNA_data/somalier_cohort/*.somalier
 
 
